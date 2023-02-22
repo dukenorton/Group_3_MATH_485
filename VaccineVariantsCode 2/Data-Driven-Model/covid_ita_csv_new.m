@@ -27,7 +27,7 @@ opts = setvaropts(opts, "note", "TrimNonNumeric", true);
 opts = setvaropts(opts, "note", "ThousandsSeparator", ",");
 
 % Import the data
-itanaz = readtable("/Users/giuseppe/Google Drive/-DENI-/Varie/Salute/Coronavirus/coronavirus m_files 2/dpc-covid19-ita-andamento-nazionale.csv", opts);
+itanaz = readtable("/dpc-covid19-ita-andamento-nazionale.csv", opts);
 
 
 %% Clear temporary variables
