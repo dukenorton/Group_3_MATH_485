@@ -7,7 +7,7 @@ load_data
 
 %%%%%%%% LOAD SCENARIO
 
-INDICE=1
+INDICE=1;
 load_scenario
 
 %%%%%% list of scenarios  %%%%%%
