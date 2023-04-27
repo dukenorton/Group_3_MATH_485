@@ -97,7 +97,8 @@ sigma=0.0171;
 %to add the SIDARTHE-V version add a new constant phi
 phi=0.00001;
 %phi=0.5;
-
+rein=0;
+rein_vacc=0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFINITIONS
@@ -277,26 +278,44 @@ for i=2:length(t)
     %Add a ramping up vacc campaign
     if (i>5/step)
         phi=0.00001;
+        rein=0.000001;
+        rein_vacc=0.000001;
     elseif (i>50/step)
         phi=0.00005;
         %phi=0.001;
+        rein=0.0001;
+        rein_vacc=0.0001;
     elseif (i>100/step)
         phi=0.0001;
+        rein=0.01;
+        rein_vacc=0.001;
     elseif (i>200/step)
         phi=0.0005;
     end
     
     % Compute the system evolution
     %ADDED A NEW zero to the end of each row and added a tenth row with 
-    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 0 0 0 0;
+    %B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 0 0 0 0;
+     %   alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0 0;
+     %   0 epsilon  -(eta+rho) 0 0 0 0 0 0 0 0;
+     %   0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0 0;
+     %   0 0 eta theta -(nu+xi) 0 0 0 0 0 0;
+     %   0 0 0 mu nu  -(sigma+tau) 0 0 0 0 0;
+     %   0 lambda rho kappa xi sigma 0 0 0 0 0;
+     %   0 0 0 0 0 tau 0 0 0 0 0;
+     %   phi*x(1) 0 0 0 0 0 0 0 0 0 0;
+     %   0 0 rho 0 xi sigma 0 0 0 0 0;
+     %   alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0 0];
+    %x=x+B*x*step;
+    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 rein 0 rein_vacc 0 0;
         alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0 0;
         0 epsilon  -(eta+rho) 0 0 0 0 0 0 0 0;
         0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0 0;
         0 0 eta theta -(nu+xi) 0 0 0 0 0 0;
         0 0 0 mu nu  -(sigma+tau) 0 0 0 0 0;
-        0 lambda rho kappa xi sigma 0 0 0 0 0;
+        0 lambda rho kappa xi sigma -rein 0 0 0 0;
         0 0 0 0 0 tau 0 0 0 0 0;
-        phi*x(1) 0 0 0 0 0 0 0 0 0 0;
+        phi*x(1) 0 0 0 0 0 0 0 -rein 0 0;
         0 0 rho 0 xi sigma 0 0 0 0 0;
         alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0 0];
     x=x+B*x*step;

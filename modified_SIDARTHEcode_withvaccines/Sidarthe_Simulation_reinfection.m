@@ -2,11 +2,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MATLAB Code for epidemic simulations with the SIDARTHE model in the work
 %
-% Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
+% Based on Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
 % by Giulia Giordano, Franco Blanchini, Raffaele Bruno, Patrizio Colaneri, Alessandro Di Filippo, Angela Di Matteo, Marta Colaneri
 % 
-% Giulia Giordano, April 5, 2020
-% Contact: giulia.giordano@unitn.it
+%This code now implements vaccines and reinfection of healed and vaccinated
+%people. These modifications were done by Carl Ingebretsen
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -95,11 +95,16 @@ xi=0.0171;
 sigma=0.0171;
 
 %to add the SIDARTHE-V version add a new constant phi
-phi=0.001;
+%phi=0.0001;
 %phi=0.5;
+%For starting at day 100
+phi=0.0;
 
 %Reinfection coefficients
-rein=0.2;
+%rein=0.005;
+%rein_vacc = 0.005;
+rein=0.000;
+rein_vacc = 0.000;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -271,18 +276,25 @@ for i=2:length(t)
             plottato_quat = 1;
         end
     end
+
+    %To start vaccinations and reinefections at day 100
+    if (i>100/step)
+        phi=0.005;
+        rein = 0.05;
+        rein_vacc = 0.01;
+    end
     
     % Compute the system evolution
     %ADDED A NEW zero to the end of each row and added a tenth row with 
-    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 0 0 0 0;
-        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda)+rein 0 0 0 0 0 0 0 0 0;
+    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 rein 0 rein_vacc 0 0;
+        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0 0;
         0 epsilon  -(eta+rho) 0 0 0 0 0 0 0 0;
         0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0 0;
-        0 0 eta theta -(nu+xi) -rein 0 0 0 0 0;
+        0 0 eta theta -(nu+xi) 0 0 0 0 0 0;
         0 0 0 mu nu  -(sigma+tau) 0 0 0 0 0;
-        0 lambda rho kappa xi sigma 0 0 0 0 0;
+        0 lambda rho kappa xi sigma -rein 0 0 0 0;
         0 0 0 0 0 tau 0 0 0 0 0;
-        phi*x(1) 0 0 0 0 0 0 0 0 0 0;
+        phi*x(1) 0 0 0 0 0 0 0 -rein_vacc 0 0;
         0 0 rho 0 xi sigma 0 0 0 0 0;
         alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0 0];
     x=x+B*x*step;
@@ -341,7 +353,7 @@ plot(t,Infetti_reali,'b',t,I+D+A+R+T,'r',t,H,'g',t,E,'k',t,V,'--black')%added V
 hold on
 plot(t,D+R+T+E+H_diagnosticati,'--b',t,D+R+T,'--r',t,H_diagnosticati,'--g')
 xlim([t(1) t(end)])
-%ylim([0 0.015])
+ylim([0 0.015])
 title('Actual vs. Diagnosed Epidemic Evolution with Reinfection')
 xlabel('Time (days)')
 ylabel('Cases (fraction of the population)')

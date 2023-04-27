@@ -2,11 +2,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MATLAB Code for epidemic simulations with the SIDARTHE model in the work
 %
-% Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
+% Based on Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
 % by Giulia Giordano, Franco Blanchini, Raffaele Bruno, Patrizio Colaneri, Alessandro Di Filippo, Angela Di Matteo, Marta Colaneri
 % 
-% Giulia Giordano, April 5, 2020
-% Contact: giulia.giordano@unitn.it
+%This code now implements vaccines and reinfection of healed and vaccinated
+%people. These modifications were done by Carl Ingebretsen
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -95,11 +95,12 @@ xi=0.0171;
 sigma=0.0171;
 
 %to add the SIDARTHE-V version add a new constant phi
-phi=0.00001;
+phi=0.000001;
 %phi=0.5;
 
 %Reinfection coefficients
-rein=0.07;
+rein=0.05;
+rein_vacc=0.01;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,15 +287,27 @@ for i=2:length(t)
     
     % Compute the system evolution
     %ADDED A NEW zero to the end of each row and added a tenth row with 
-    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 0 0 0 0;
-        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda)+rein 0 0 0 0 0 0 0 0 0;
+    %B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 0 0 0 0;
+    %    alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda)+rein 0 0 0 0 0 0 0 0 0;
+    %    0 epsilon  -(eta+rho) 0 0 0 0 0 0 0 0;
+    %    0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0 0;
+    %    0 0 eta theta -(nu+xi) -rein 0 0 0 0 0;
+    %    0 0 0 mu nu  -(sigma+tau) 0 0 0 0 0;
+    %    0 lambda rho kappa xi sigma 0 0 0 0 0;
+    %    0 0 0 0 0 tau 0 0 0 0 0;
+    %    phi*x(1) 0 0 0 0 0 0 0 0 0 0;
+     %   0 0 rho 0 xi sigma 0 0 0 0 0;
+     %   alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0 0];
+   % x=x+B*x*step;
+    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 rein 0 rein_vacc 0;
+        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0 0;
         0 epsilon  -(eta+rho) 0 0 0 0 0 0 0 0;
         0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0 0;
-        0 0 eta theta -(nu+xi) -rein 0 0 0 0 0;
+        0 0 eta theta -(nu+xi) 0 0 0 0 0 0;
         0 0 0 mu nu  -(sigma+tau) 0 0 0 0 0;
-        0 lambda rho kappa xi sigma 0 0 0 0 0;
+        0 lambda rho kappa xi sigma -rein 0 0 0 0;
         0 0 0 0 0 tau 0 0 0 0 0;
-        phi*x(1) 0 0 0 0 0 0 0 0 0 0;
+        phi*x(1) 0 0 0 0 0 0 0 -rein_vacc 0 0;
         0 0 rho 0 xi sigma 0 0 0 0 0;
         alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0 0];
     x=x+B*x*step;

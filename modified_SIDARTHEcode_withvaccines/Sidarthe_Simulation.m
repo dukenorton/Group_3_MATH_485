@@ -2,13 +2,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MATLAB Code for epidemic simulations with the SIDARTHE model in the work
 %
-% Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
+% Based on Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
 % by Giulia Giordano, Franco Blanchini, Raffaele Bruno, Patrizio Colaneri, Alessandro Di Filippo, Angela Di Matteo, Marta Colaneri
 % 
-% Giulia Giordano, April 5, 2020
-% Contact: giulia.giordano@unitn.it
+%This program introduces a V compartment that represents vaccination at a
+%constant rate.
+
+%This vaccination can be modified to start at day 100 too.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%This program
 
 clear all
 close all
@@ -95,7 +100,9 @@ xi=0.0171;
 sigma=0.0171;
 
 %to add the SIDARTHE-V version add a new constant phi
-phi=0.0005;
+%phi=0.0005;
+%For second scenario with vaccines at day 100
+phi=0.0;
 %phi=0.5;
 
 
@@ -268,6 +275,12 @@ for i=2:length(t)
             plottato_quat = 1;
         end
     end
+
+    %Start vaccinations at a constant rate at day 100.
+    %Comment the following 3 lines for constant vaccines at day 1
+    if (i>100/step)
+        phi = 0.005;
+    end
     
     % Compute the system evolution
     %ADDED A NEW zero to the end of each row and added a tenth row with 
@@ -333,12 +346,13 @@ Pbar1=Ebar/((epsilon*r3+(theta+mu)*zeta)*(I(1)+S(1)-Sbar-Ibar)/(r1*r3)+(theta+mu
 % FIGURES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Add a V term to the first two graphs
 figure
 plot(t,Infetti_reali,'b',t,I+D+A+R+T,'r',t,H,'g',t,E,'k',t,V,'black--')%added V
 hold on
 plot(t,D+R+T+E+H_diagnosticati,'--b',t,D+R+T,'--r',t,H_diagnosticati,'--g')
 xlim([t(1) t(end)])
-%ylim([0 0.015])
+ylim([0 0.015])
 title('Actual vs. Diagnosed Epidemic Evolution with Constant Vaccination')
 xlabel('Time (days)')
 ylabel('Cases (fraction of the population)')
@@ -356,7 +370,7 @@ end
 figure
 plot(t,I,'b',t,D,'c',t,A,'g',t,R,'m',t,T,'r',t,V,'r')
 xlim([t(1) t(end)])
-%ylim([0 1.1e-3])
+ylim([0 1.1e-3])
 title('Infected, different stages, Diagnosed vs. Non Diagnosed with Constant Vaccination')
 xlabel('Time (days)')
 ylabel('Cases (fraction of the population)')
