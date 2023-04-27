@@ -94,6 +94,10 @@ xi=0.0171;
 % Recovery rate for life-threatened symptomatic infected
 sigma=0.0171;
 
+%to add the SIDARTHE-V version add a new constant phi
+phi=0.0005;
+%phi=0.5;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFINITIONS
@@ -107,7 +111,7 @@ r4=nu+xi;
 r5=sigma+tau;
 
 % Initial R0
-R0_iniziale=alfa/r1+beta*epsilon/(r1*r2)+gamma*zeta/(r1*r3)+delta*eta*epsilon/(r1*r2*r4)+delta*zeta*theta/(r1*r3*r4)
+R0_iniziale=alfa/r1+beta*epsilon/(r1*r2)+gamma*zeta/(r1*r3)+delta*eta*epsilon/(r1*r2*r4)+delta*zeta*theta/(r1*r3*r4);
 
 % Time horizon
 t=1:step:Orizzonte;
@@ -122,6 +126,8 @@ T=zeros(1,length(t));
 H=zeros(1,length(t));
 H_diagnosticati=zeros(1,length(t)); % DIAGNOSED recovered only!
 E=zeros(1,length(t));
+%For SIDARTHE-V add a V
+V=zeros(1,length(t));
 
 % Vectors for time evolution of actual/perceived Case Fatality Rate
 M=zeros(1,length(t));
@@ -138,7 +144,8 @@ R(1)=2/popolazione;
 T(1)=0.00;
 H(1)=0.00;
 E(1)=0.00;
-S(1)=1-I(1)-D(1)-A(1)-R(1)-T(1)-H(1)-E(1);
+V(1)=0.00;%For SIDARTHE-V
+S(1)=1-I(1)-D(1)-A(1)-R(1)-T(1)-H(1)-E(1)-V(1);
 
 H_diagnosticati(1) = 0.00; % DIAGNOSED recovered only
 Infetti_reali(1)=I(1)+D(1)+A(1)+R(1)+T(1); % Actual currently infected
@@ -147,7 +154,8 @@ M(1)=0;
 P(1)=0;
 
 % Whole state vector
-x=[S(1);I(1);D(1);A(1);R(1);T(1);H(1);E(1);H_diagnosticati(1);Infetti_reali(1)];
+%Added a V(1) at the end
+x=[S(1);I(1);D(1);A(1);R(1);T(1);H(1);E(1);V(1);H_diagnosticati(1);Infetti_reali(1)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIMULATION
@@ -168,6 +176,7 @@ for i=2:length(t)
         gamma=0.285;
         beta = 0.0057;
         delta=0.0057;
+        phi=0.000001;
         if plottato == 0 % Compute the new R0
             r1=epsilon+zeta+lambda;
             r2=eta+rho;
@@ -182,6 +191,7 @@ for i=2:length(t)
     if (i>12/step)
         % Screening limited to / focused on symptomatic subjects
         epsilon=0.1425;
+        phi=0.00001;
         if plottato1 == 0
             r1=epsilon+zeta+lambda;
             r2=eta+rho;
@@ -211,6 +221,7 @@ for i=2:length(t)
         kappa=0.0171;
         xi=0.0171;
         sigma=0.0171;
+        phi=0.00005;
         
         if plottato_bis == 0 % Compute the new R0
             r1=epsilon+zeta+lambda;
@@ -227,6 +238,7 @@ for i=2:length(t)
         
         alfa=0.21;
         gamma=0.11;
+        phi=0.0001;
         
         if plottato_tris == 0 % Compute the new R0
             r1=epsilon+zeta+lambda;
@@ -249,6 +261,7 @@ for i=2:length(t)
         
         zeta=0.025;
         eta=0.025;
+        phi=0.0005;
         
         if plottato_quat == 0 % Compute the new R0
             r1=epsilon+zeta+lambda;
@@ -262,17 +275,18 @@ for i=2:length(t)
     end
     
     % Compute the system evolution
-    
-    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5) 0 0 0 0 0 0 0 0 0;
-        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0;
-        0 epsilon  -(eta+rho) 0 0 0 0 0 0 0;
-        0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0;
-        0 0 eta theta -(nu+xi) 0 0 0 0 0;
-        0 0 0 mu nu  -(sigma+tau) 0 0 0 0;
-        0 lambda rho kappa xi sigma 0 0 0 0;
-        0 0 0 0 0 tau 0 0 0 0;
-        0 0 rho 0 xi sigma 0 0 0 0;
-        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0];
+    %ADDED A NEW zero to the end of each row and added a tenth row with 
+    B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5)-phi*x(9) 0 0 0 0 0 0 0 0 0 0;
+        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0 0;
+        0 epsilon  -(eta+rho) 0 0 0 0 0 0 0 0;
+        0 zeta 0 -(theta+mu+kappa) 0 0 0 0 0 0 0;
+        0 0 eta theta -(nu+xi) 0 0 0 0 0 0;
+        0 0 0 mu nu  -(sigma+tau) 0 0 0 0 0;
+        0 lambda rho kappa xi sigma 0 0 0 0 0;
+        0 0 0 0 0 tau 0 0 0 0 0;
+        phi*x(1) 0 0 0 0 0 0 0 0 0 0;
+        0 0 rho 0 xi sigma 0 0 0 0 0;
+        alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) 0 0 0 0 0 0 0 0 0 0];
     x=x+B*x*step;
     
     % Update variables
@@ -285,9 +299,10 @@ for i=2:length(t)
     T(i)=x(6);
     H(i)=x(7);
     E(i)=x(8);
+    V(i)=x(9);%added V
     
-    H_diagnosticati(i)=x(9);
-    Infetti_reali(i)=x(10);
+    H_diagnosticati(i)=x(10);
+    Infetti_reali(i)=x(11);
     
     % Update Case Fatality Rate
     
@@ -309,6 +324,7 @@ Rbar=R(length(t));
 Tbar=T(length(t));
 Hbar=H(length(t));
 Ebar=E(length(t));
+Vbar=V(length(t));
 
 % Case fatality rate
 Mbar=M(length(t));
@@ -323,15 +339,15 @@ Pbar1=Ebar/((epsilon*r3+(theta+mu)*zeta)*(I(1)+S(1)-Sbar-Ibar)/(r1*r3)+(theta+mu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 figure
-plot(t,Infetti_reali,'b',t,I+D+A+R+T,'r',t,H,'g',t,E,'k')
+plot(t,Infetti_reali,'b',t,I+D+A+R+T,'r',t,H,'g',t,E,'k',t,V,'black--')%added V
 hold on
 plot(t,D+R+T+E+H_diagnosticati,'--b',t,D+R+T,'--r',t,H_diagnosticati,'--g')
 xlim([t(1) t(end)])
 ylim([0 0.015])
-%title('Actual vs. Diagnosed Epidemic Evolution')
+title('Actual vs. Diagnosed Epidemic Evolution with Piecewise Vaccination')
 xlabel('Time (days)')
 ylabel('Cases (fraction of the population)')
-legend({'Cumulative Infected','Current Total Infected', 'Recovered', 'Deaths','Diagnosed Cumulative Infected','Diagnosed Current Total Infected', 'Diagnosed Recovered'},'Location','northwest')
+legend({'Cumulative Infected','Current Total Infected', 'Recovered', 'Deaths','Diagnosed Cumulative Infected','Diagnosed Current Total Infected', 'Diagnosed Recovered', 'Vaccinated'},'Location','northwest')
 grid
 
 if plotPDF==1
@@ -343,13 +359,13 @@ end
 %
 
 figure
-plot(t,I,'b',t,D,'c',t,A,'g',t,R,'m',t,T,'r')
+plot(t,I,'b',t,D,'c',t,A,'g',t,R,'m',t,T,'r',t,V,'r')
 xlim([t(1) t(end)])
 ylim([0 1.1e-3])
-%title('Infected, different stages, Diagnosed vs. Non Diagnosed')
+title('Infected, different stages, Diagnosed vs. Non Diagnosed with Piecewise Vaccination')
 xlabel('Time (days)')
 ylabel('Cases (fraction of the population)')
-legend({'Infected ND AS', 'Infected D AS', 'Infected ND S', 'Infected D S', 'Infected D IC'},'Location','northeast')
+legend({'Infected ND AS', 'Infected D AS', 'Infected ND S', 'Infected D S', 'Infected D IC','Vaccinated'},'Location','northeast')
 grid
 
 if plotPDF==1
@@ -512,3 +528,22 @@ if plotPDF==1
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['InfettiSintomatici_diagnosticati_terapiaintensiva.pdf'])
 end
+
+%Plot the vaccinated
+figure
+plot(t,V)
+hold on
+%stem(t(1+3/step:1/step:1+(size(Ricoverati_sintomi,2)+2)/step),Terapia_intensiva)
+xlim([t(1) t(end)])
+ylim([0 2.5e-3])
+title('Vaccinated: Model vs. Data')
+xlabel('Time (days)')
+ylabel('Vaccinated (fraction of the population)')
+grid
+
+%if plotPDF==1
+    %set(gcf, 'PaperUnits', 'centimeters');
+    %set(gcf, 'PaperPosition', [0 0 16 10]);
+    %set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
+    %print(gcf,'-dpdf', ['InfettiSintomatici_diagnosticati_terapiaintensiva.pdf'])
+%end
