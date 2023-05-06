@@ -20,5 +20,5 @@ There is the altered [SIDARTHE code before adding reinfection](modified_SIDARTHE
 
 Specific information regarding coding is contained within the README files of respective folders.
 
-[^1]: https://www.nature.com/articles/s41591-021-01334-5#Sec2
+[^1]: https://www.nature.com/articles/s41591-021-01334-5
 [^2]: https://www.nature.com/articles/s41591-020-0883-7
