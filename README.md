@@ -2,7 +2,9 @@ This repository contains the matlab program files which make up the work for the
  
 The repository contains original and amended code from authors [^1] Giulia Giordano, Marta Colaneri, Alessandro Di Filippo, Franco Blanchini, Paolo Bolzern, Giuseppe De Nicolao, Paolo Sacchi, Patrizio Colaneri & Raffaele Bruno which was downloaded from their research and code from [^2] Giulia Giordano, Franco Blanchini, Raffaele Bruno, Patrizio Colaneri, Alessandro Di Filippo, Angela Di Matteo & Marta Colaneri.
 
-Project Colaborators: Andrew Olson, Carl Ingebretsen, Duke Norton, and John Quillopo
+Project Colaborators: Andrew Olson, Carl Ingebretsen, Duke Norton, and John Quillopo, Gaurish Korpal.
+
+Project Mentors: Gaurish Korpal and Joceline Lega
 
 Last commit date: 05/05/23
 
